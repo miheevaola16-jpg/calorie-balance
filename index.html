@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Calorie Balance | Калькулятор калорий и здоровья</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fff0e7 0%, #ffe6d5 30%, #fff2b5 70%, #ffe0a3 100%);
+            background-attachment: fixed;
+            padding: 2rem 1.5rem;
+            position: relative;
+            backdrop-filter: blur(1px);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 220, 150, 0.25), rgba(255, 200, 180, 0.1));
+            pointer-events: none;
+            z-index: 0;
+            animation: softShift 12s infinite alternate;
+        }
+
+        @keyframes softShift {
+            0% {
+                opacity: 0.4;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0.8;
+                transform: scale(1.05);
+                background: radial-gradient(circle at 70% 80%, rgba(255, 200, 120, 0.35), rgba(255, 170, 140, 0.15));
+            }
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(125deg, #C94B4B, #F2994A, #F9D56E);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .hero .sub {
+            font-size: 1.1rem;
+            color: #b45f3b;
+            margin-top: 0.75rem;
+            font-weight: 500;
+            background: rgba(255,245,230,0.6);
+            backdrop-filter: blur(4px);
+            display: inline-block;
+            padding: 0.3rem 1.2rem;
+            border-radius: 60px;
+        }
+
+        .intro-text {
+            background: rgba(255, 248, 235, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            padding: 1.8rem 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05), 0 0 0 1px rgba(255,215,170,0.5);
+            text-align: center;
+        }
+
+        .intro-text p {
+            font-size: 1.05rem;
+            line-height: 1.5;
+            color: #5a3e2b;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .intro-text strong {
+            color: #c95a2c;
+            font-weight: 600;
+        }
+
+        .grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .card {
+            background: rgba(255, 252, 245, 0.92);
+            backdrop-filter: blur(12px);
+            border-radius: 40px;
+            padding: 2rem 2rem 2.2rem;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(255, 220, 170, 0.6);
+            transition: transform 0.2s ease;
+            flex: 1;
+            min-width: 320px;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            font-weight: 600;
+            color: #b35226;
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: #fffef8;
+            border: 1.5px solid #ffdbaf;
+            border-radius: 28px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            outline: none;
+            color: #2d241a;
+        }
+
+        input:focus, select:focus {
+            border-color: #f5a65a;
+            box-shadow: 0 0 0 3px rgba(245, 166, 90, 0.2);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1.8rem;
+            margin-top: 0.3rem;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            color: #764b2a;
+            cursor: pointer;
+        }
+
+        .radio-group input {
+            width: 18px;
+            height: 18px;
+            accent-color: #f2994a;
+        }
+
+        button {
+            background: linear-gradient(95deg, #F08C3E, #FFB347);
+            border: none;
+            padding: 0.9rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: white;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 5px 12px rgba(240, 140, 62, 0.3);
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            background: linear-gradient(95deg, #E07A2E, #F5A341);
+            transform: scale(0.98);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+
+        .result-block {
+            background: rgba(255, 248, 235, 0.7);
+            border-radius: 32px;
+            padding: 0.2rem 0 1rem;
+            margin-top: 1.8rem;
+        }
+
+        .kcal-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #c45a27;
+            line-height: 1.2;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed #ffd8ae;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .bmi-scale {
+            margin: 1rem 0 0.8rem;
+        }
+
+        .bmi-track {
+            background: #ffe3ce;
+            border-radius: 40px;
+            height: 12px;
+            width: 100%;
+            position: relative;
+            margin: 0.6rem 0;
+        }
+
+        .bmi-fill {
+            height: 12px;
+            background: linear-gradient(90deg, #f5bc70, #f0812f);
+            border-radius: 40px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .bmi-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #b56234;
+            margin-top: 0.2rem;
+        }
+
+        .status-badge {
+            font-weight: 700;
+            background: #ffebd2;
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .advice-block {
+            margin-top: 1rem;
+            background: rgba(255, 237, 210, 0.7);
+            border-radius: 24px;
+            padding: 0.8rem 1rem;
+            font-size: 0.85rem;
+            color: #9b5a34;
+            text-align: center;
+            border-left: 4px solid #f5a65a;
+        }
+
+        hr {
+            margin: 1rem 0;
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, #ffd5a5, transparent);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            font-size: 0.8rem;
+            color: #aa794c;
+            background: rgba(255,245,230,0.5);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            backdrop-filter: blur(2px);
+        }
+
+        @media (max-width: 760px) {
+            body {
+                padding: 1rem;
+            }
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>Calorie Balance</h1>
+            <div class="sub">персональный счётчик калорий | здоровое тело — точный расчёт</div>
+        </div>
+
+        <div class="intro-text">
+            <p>
+                <strong>Для чего это нужно?</strong> Каждый организм уникален. Узнайте свою <strong>дневную норму калорий</strong> с учётом веса, роста, возраста, пола и физической активности.
+                Это основа для контроля веса, набора энергии или стройной формы. Плюс <strong>индекс массы тела (ИМТ)</strong> — быстрый ориентир вашего состояния.
+                Введите параметры и получите персонализированный результат.
+            </p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3 style="color:#c06939; margin-bottom: 1rem; font-weight: 600;">Введите параметры</h3>
+                <form id="calorieForm">
+                    <div class="form-group">
+                        <label>Пол</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="gender" value="female" checked> Женский</label>
+                            <label><input type="radio" name="gender" value="male"> Мужской</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Возраст (лет)</label>
+                        <input type="number" id="age" placeholder="например 25" step="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Вес (кг)</label>
+                        <input type="number" id="weight" placeholder="например 65" step="0.1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Рост (см)</label>
+                        <input type="number" id="height" placeholder="например 170" step="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Физическая активность</label>
+                        <select id="activity">
+                            <option value="1.2">Минимальная (сидячая работа, мало движений)</option>
+                            <option value="1.375">Низкая (легкие тренировки 1-3 раза/нед)</option>
+                            <option value="1.55" selected>Умеренная (тренировки 3-5 раз/нед)</option>
+                            <option value="1.725">Высокая (ежедневные нагрузки)</option>
+                            <option value="1.9">Экстремальная (спорт + физ.работа)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Рассчитать норму</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3 style="color:#c06939; margin-bottom: 0.75rem; font-weight: 600;">Ваш результат</h3>
+                <div id="resultsArea">
+                    <div class="result-block">
+                        <div class="result-item">
+                            <span>Суточная норма калорий:</span>
+                            <span class="kcal-value" id="kcalDisplay">— ккал</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Базовый метаболизм (BMR):</span>
+                            <span id="bmrDisplay">— ккал</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Индекс массы тела (ИМТ):</span>
+                            <span id="bmiValue">—</span>
+                        </div>
+                    </div>
+
+                    <div class="bmi-scale">
+                        <div class="bmi-track">
+                            <div class="bmi-fill" id="bmiFill" style="width: 0%;"></div>
+                        </div>
+                        <div class="bmi-labels">
+                            <span>Недостаток</span>
+                            <span>Норма</span>
+                            <span>Избыток</span>
+                            <span>Ожирение</span>
+                        </div>
+                        <div id="bmiCategory" class="status-badge" style="background:#fff0e0;">→ Введите данные</div>
+                    </div>
+
+                    <div class="advice-block" id="adviceBlock">
+                        💡 Заполните все поля и нажмите «Рассчитать норму»
+                    </div>
+
+                    <hr>
+
+                    <div style="font-size: 0.75rem; color:#a05e38; margin-top: 0.5rem; text-align:center;">
+                        * Расчёт по формуле Миффлина-Сан Жеора + коэффициент активности
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            Заботьтесь о себе: баланс — ключ к энергии и здоровью. Данные носят рекомендательный характер.
+        </footer>
+    </div>
+
+    <script>
+        const form = document.getElementById('calorieForm');
+        const genderRadios = document.querySelectorAll('input[name="gender"]');
+        const ageInput = document.getElementById('age');
+        const weightInput = document.getElementById('weight');
+        const heightInput = document.getElementById('height');
+        const activitySelect = document.getElementById('activity');
+
+        const kcalDisplay = document.getElementById('kcalDisplay');
+        const bmrDisplaySpan = document.getElementById('bmrDisplay');
+        const bmiValueSpan = document.getElementById('bmiValue');
+        const bmiFill = document.getElementById('bmiFill');
+        const bmiCategorySpan = document.getElementById('bmiCategory');
+        const adviceBlock = document.getElementById('adviceBlock');
+
+        function calculateBMR(weightKg, heightCm, ageYears, gender) {
+            if (gender === 'male') {
+                return (10 * weightKg) + (6.25 * heightCm) - (5 * ageYears) + 5;
+            } else {
+                return (10 * weightKg) + (6.25 * heightCm) - (5 * ageYears) - 161;
+            }
+        }
+
+        function getPersonalizedAdvice(bmi) {
+            if (bmi < 18.5) {
+                return "📈 У вас недостаточная масса тела. Рекомендуем плавно увеличить калорийность рациона на 300–400 ккал в день. Добавьте питательные продукты: орехи, авокадо, цельнозерновые.";
+            } else if (bmi >= 18.5 && bmi < 25) {
+                return "🌟 Отличный результат! Ваш вес в норме. Чтобы поддерживать форму, придерживайтесь рассчитанной нормы калорий и не забывайте про физическую активность.";
+            } else if (bmi >= 25 && bmi < 30) {
+                return "⚠️ У вас избыточная масса тела. Для комфортного снижения веса создайте небольшой дефицит калорий (250–350 ккал от нормы) и добавьте ежедневную ходьбу.";
+            } else {
+                return "🩺 У вас наблюдается ожирение. Рекомендуем проконсультироваться с врачом или диетологом. Постепенное снижение калорийности на 400–500 ккал в день и увеличение физической активности помогут улучшить состояние.";
+            }
+        }
+
+        function updateCalculations() {
+            let age = parseFloat(ageInput.value);
+            let weight = parseFloat(weightInput.value);
+            let height = parseFloat(heightInput.value);
+            let activity = parseFloat(activitySelect.value);
+
+            if (isNaN(age) || isNaN(weight) || isNaN(height) || age <= 0 || weight <= 0 || height <= 0) {
+                kcalDisplay.innerText = '— ккал';
+                bmrDisplaySpan.innerText = '— ккал';
+                bmiValueSpan.innerText = '—';
+                bmiFill.style.width = '0%';
+                bmiCategorySpan.innerText = '→ Введите данные';
+                bmiCategorySpan.style.background = "#fff0e0";
+                adviceBlock.innerHTML = "💡 Заполните все поля (возраст, вес, рост) и нажмите «Рассчитать норму»";
+                return;
+            }
+
+            let selectedGender = 'female';
+            for (let radio of genderRadios) {
+                if (radio.checked) {
+                    selectedGender = radio.value;
+                    break;
+                }
+            }
+
+            let bmr = calculateBMR(weight, height, age, selectedGender);
+            let dailyCalories = bmr * activity;
+
+            bmr = Math.round(bmr);
+            dailyCalories = Math.round(dailyCalories);
+
+            let heightMeters = height / 100;
+            let bmi = weight / (heightMeters * heightMeters);
+            let bmiRounded = bmi.toFixed(1);
+
+            kcalDisplay.innerText = dailyCalories + ' ккал';
+            bmrDisplaySpan.innerText = bmr + ' ккал';
+            bmiValueSpan.innerText = bmiRounded;
+
+            let fillPercent = 0;
+            let categoryText = '';
+            let categoryColor = '#ffe0c4';
+
+            if (bmi < 18.5) {
+                categoryText = 'Недостаточная масса тела (ниже нормы)';
+                fillPercent = (bmi / 18.5) * 25;
+                if (fillPercent > 25) fillPercent = 25;
+                categoryColor = '#ffcd94';
+            } else if (bmi >= 18.5 && bmi < 25) {
+                categoryText = 'Нормальный вес — отлично';
+                let normRange = (bmi - 18.5) / (25 - 18.5);
+                fillPercent = 25 + normRange * 30;
+                categoryColor = '#f5d087';
+            } else if (bmi >= 25 && bmi < 30) {
+                categoryText = 'Избыточная масса тела (предожирение)';
+                let overRange = (bmi - 25) / (30 - 25);
+                fillPercent = 55 + overRange * 25;
+                categoryColor = '#f7bc6c';
+            } else {
+                categoryText = 'Ожирение (рекомендуется консультация врача)';
+                let obRange = (bmi - 30) / 20;
+                if (obRange > 1) obRange = 1;
+                fillPercent = 80 + obRange * 20;
+                if (fillPercent > 100) fillPercent = 100;
+                categoryColor = '#e6965e';
+            }
+
+            if (fillPercent < 2 && bmi > 0) fillPercent = 2;
+            if (bmi > 50) fillPercent = 100;
+            bmiFill.style.width = fillPercent + '%';
+            bmiCategorySpan.innerText = categoryText;
+            bmiCategorySpan.style.background = categoryColor;
+
+            let advice = getPersonalizedAdvice(bmi);
+            adviceBlock.innerHTML = `💡 <strong>Совет:</strong> ${advice}<br><span style="font-size:0.7rem;">⚡ Базовый обмен (BMR): ${bmr} ккал/сут (покой)</span>`;
+        }
+
+        function handleCalculate(e) {
+            e.preventDefault();
+            updateCalculations();
+        }
+
+        form.addEventListener('submit', handleCalculate);
+        activitySelect.addEventListener('change', updateCalculations);
+        genderRadios.forEach(radio => radio.addEventListener('change', updateCalculations));
+        
+        ageInput.addEventListener('input', updateCalculations);
+        weightInput.addEventListener('input', updateCalculations);
+        heightInput.addEventListener('input', updateCalculations);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            ageInput.value = '';
+            weightInput.value = '';
+            heightInput.value = '';
+            updateCalculations();
+        });
+    </script>
+</body>
+</html>
